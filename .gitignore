@@ -1,0 +1,17 @@
+.metadata
+RemoteSystemsTempFiles
+Servers
+/test-webapp/*.project
+.settings
+/test-webapp/test-web/*.classpath
+target
+/user-service/user-provider/*.project
+/user-service/user-bean/*.project
+/test-webapp/test-web/*.project
+/user-service/*.project
+/user-service/user-api/*.classpath
+/user-service/user-api/*.project
+/user-service/user-bean/*.classpath
+/user-service/user-dao/*.classpath
+/user-service/user-dao/*.project
+/user-service/user-provider/*.classpath
