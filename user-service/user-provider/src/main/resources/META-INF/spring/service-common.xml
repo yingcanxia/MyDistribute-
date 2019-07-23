@@ -20,7 +20,7 @@
 		<property name="locations" >  
 			<list>  
                  <value>classpath*:application.properties</value><!-- 配置 -->
-                 <!-- <value>classpath*:jdbc.properties</value>配置 -->
+                 <value>classpath*:jdbc.properties</value><!-- 配置 -->
             </list>  
         </property>
 	</bean> 
@@ -30,29 +30,30 @@
  	</bean>
 	<bean id="userDataSource" class="com.alibaba.druid.pool.DruidDataSource" destroy-method="close">  
          <!-- 数据库基本信息配置 -->
-         <property name="url" value="jdbc:mysql://192.168.1.128:3306/cloud?useUnicode=true&amp;characterEncoding=utf8&amp;useOldAliasMetadataBehavior=true&amp;zeroDateTimeBehavior=convertToNull&amp;allowMultiQueries=true" />  
-         <property name="username" value="root" />  
-         <property name="password" value="goodnight007" />  
-         <property name="driverClassName" value="com.mysql.jdbc.Driver" />  
-         <property name="filters" value="stat,config" />  
+         <property name="url" value="${datasource.user.url}" />  
+         <property name="username" value="${datasource.user.username}" />  
+         <property name="password" value="${datasource.user.password}" />
+         <!-- <property name="password">${datasource.user.password}</property> -->  
+         <property name="driverClassName" value="${datasource.user.driverClassName}" />  
+         <property name="filters" value="${datasource.user.filters}" />  
    		 <!-- 最大并发连接数 -->
-         <property name="maxActive" value="20" />
+         <property name="maxActive" value="${datasource.user.maxActive}" />
          <!-- 初始化连接数量 -->
-         <property name="initialSize" value="2" />
+         <property name="initialSize" value="${datasource.user.initialSize}" />
          <!-- 配置获取连接等待超时的时间 -->
-         <property name="maxWait" value="60000" />
+         <property name="maxWait" value="${datasource.user.maxWait}" />
          <!-- 最小空闲连接数 -->
-         <property name="minIdle" value="1" />  
+         <property name="minIdle" value="${datasource.user.minIdle}" />  
    		 <!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->
-         <property name="timeBetweenEvictionRunsMillis" value="60000" />
+         <property name="timeBetweenEvictionRunsMillis" value="${datasource.user.timeBetweenEvictionRunsMillis}" />
          <!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->
-         <property name="minEvictableIdleTimeMillis" value="300000" />  
+         <property name="minEvictableIdleTimeMillis" value="${datasource.user.minEvictableIdleTimeMillis}" />  
          <property name="validationQuery" value="${datasource.user.validationQuery}" />  
-         <property name="testWhileIdle" value="true" />  
-         <property name="testOnBorrow" value="false" />  
-         <property name="testOnReturn" value="false" />  
-         <property name="maxOpenPreparedStatements" value="20" />
-         <property name="poolPreparedStatements" value="false"/>
+         <property name="testWhileIdle" value="${datasource.user.testWhileIdle}" />  
+         <property name="testOnBorrow" value="${datasource.user.testOnBorrow}" />  
+         <property name="testOnReturn" value="${datasource.user.testOnReturn}" />  
+         <property name="maxOpenPreparedStatements" value="${datasource.user.maxPoolPreparedStatementPerConnectionSize}" />
+         <property name="poolPreparedStatements" value="${datasource.user.poolPreparedStatements}"/>
 	</bean> 
 
 	<bean id="userSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
@@ -65,8 +66,12 @@
 	<bean name="userMapperScannerConfigurer" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
 		<property name="basePackage"
 				  value="cn.shadow.dao" />
-		<property name="sqlSessionFactory" ref="userSqlSessionFactory" />
+		<!-- <property name="sqlSessionFactory" ref="userSqlSessionFactory" /> -->
+		<property name="sqlSessionFactoryBeanName" value="userSqlSessionFactory" />
 	</bean>
+	<!-- 这个问题是无法识别占位符，就是在加载过程中直接把 ${jdbc.maxActive }当做字符串处理了。
+	myabatis使用MapperScannerConfigurer扫描模式后他会优先于PropertyPlaceholderConfigurer执行，
+	所以这个时候，${jdbc.maxActive }还没有被properties文件里面的值所替换，就出现TypeMismatchException，然后就异常了。 -->
 		<tx:advice id="txAdvice" transaction-manager="transactionManager">
 		<tx:attributes>
 			<tx:method name="delete*" propagation="REQUIRED" read-only="false" 
